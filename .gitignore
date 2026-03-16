@@ -1,0 +1,35 @@
+# R / RStudio
+.Rhistory
+.RData
+.Rproj.user/
+.DS_Store
+
+# Compiled SimInf files
+*.o
+*.so
+*.dll
+/src/Makevars
+/src-i386/
+src-x64/
+
+# Build / configure artifacts
+/config.log
+/config.status
+autom4te.cache*
+gsl.zip
+/src/gsl/
+/src/openssl/
+
+# Vignettes / documentation outputs
+inst/doc
+/vignettes/*.pdf
+/vignettes/*.aux
+/vignettes/*.log
+/vignettes/*.bbl
+/vignettes/*.blg
+/vignettes/*.out
+/vignettes/*.tex
+/vignettes/*.png
+
+# macOS metadata
+.DS_Store
