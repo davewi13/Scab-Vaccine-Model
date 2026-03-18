@@ -1,0 +1,16 @@
+1. (a) I am currently applying vaccination only to susceptible individuals and carriers. Will it work on carriers? This would essentially remove the mites from the carriers when vaccination is applied. Sounds dodgy.
+(b) What happens if you vaccinate an infested animal? Currently assuming it will do nothing.
+(c) Can a vaccinated animal become infectious e.g. can there be complete non-responders? Probably best to do this through reducing the coverage i.e. its like they were never vaccinated at all.
+(d) Can a vaccinated animal become a carrier e.g. partial responder or Can a vaccinated animal become a "weakened carrier" e.g. will have and shed some mites but less than a traditional carrier?
+(e) Assuming (d) is possible at what rate will individuals move from V to C (or weakened C)? The same rate as individuals move from S to I? We could do something else but might be hard to justify something more complex.
+(f) Assuming (e) is possible do they all do this or will some have complete immunity and stay in V whilst some proportion could move to C? This would essentially require three categories: non-responders, partial responders and complete responders. Probably would require 2 vaccinated compartments, so again more complex but possible if the data supports it.
+
+These mechanisms are super important. Current model assumes vaccinated animals can't get mites at all. I'm sure this is too simple but it seemed a good starting point to get used to SimInf.
+
+2. How long does protective immunity last for a vaccinated animal?
+
+3. Related to possible bug - I have had to update upsilon (The indirect transmission rate from the environmental compartment to susceptible sheep) to make it ~10-100 times greater than the value in twonodesexample to get any infection. Is there anywhere we can check this against?
+
+4. Otherwise I have used the parameter values in twonodesexample that are (I think) the same as those Emily used. This ok?
+
+5. The decay rate of mites in the environment can decay seasonally but it is currently the same all year. Do we want this to vary? If so, how? Could be scaled up or down by a fraction through the year, which is currently split into 4 parts.

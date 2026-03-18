@@ -1,8 +1,8 @@
 # R / RStudio
-.Rhistory
-.RData
-.Rproj.user/
-.DS_Store
+*.Rhistory
+*.RData
+*.Rproj.user/
+*.DS_Store
 
 # Compiled SimInf files
 *.o
@@ -30,6 +30,3 @@ inst/doc
 /vignettes/*.out
 /vignettes/*.tex
 /vignettes/*.png
-
-# macOS metadata
-.DS_Store

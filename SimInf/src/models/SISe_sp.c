@@ -27,7 +27,8 @@
 
 /* Offset in integer compartment state vector */
 /* Added in my extra compartment here */
-enum {S, I, C};
+/* DE added another compartment here on top of Emily's*/
+enum {S, I, C, V};
 
 /* Offset in real-valued continuous state vector */
 enum {PHI};
@@ -37,7 +38,10 @@ enum {END_T1, END_T2, END_T3, END_T4, NEIGHBOR};
 
 /* Offsets in global data (gdata) to parameters in the model */
 /* I've added new parameters called epar, tau, qprop */
-enum {UPSILON, GAMMA, ALPHA, BETA_T1, BETA_T2, BETA_T3, BETA_T4, COUPLING, EPAR, TAU, QPROP};
+/* DE and I've added vaccshed and wane*/
+/* Also reordered these to reflect the order of gdata from R because that was causing problems accessing the wrong parameter values*/
+enum {UPSILON, GAMMA, ALPHA, EPAR, TAU, QPROP, WANE, VACCSHED,
+      BETA_T1, BETA_T2, BETA_T3, BETA_T4, COUPLING};
 
 /**
  * susceptible to infected: S -> I
@@ -125,13 +129,34 @@ double SISe_sp_C_to_S(
 }
 
 
+/**
+ *  carriers to susceptible: V -> S (NEW)
+ *
+ * @param u The compartment state vector in node.
+ * @param v The continuous state vector in node.
+ * @param ldata The local data vector for node.
+ * @param gdata The global data vector.
+ * @param t Current time.
+ * @return propensity.
+ */
+double SISe_sp_V_to_S(
+    const int *u,
+    const double *v,
+    const double *ldata,
+    const double *gdata,
+    double t)
+{
+  return gdata[WANE] * u[V];
+
+}
+
 
 
 /**
  * Update environmental infectious pressure phi
  *
  * Decay environmental infectious pressure phi, add contribution from
- * infected individuals, carriers and proximity coupling.
+ * infected individuals, carriers, vaccinated individuals and proximity coupling.
  * @param v_new The continuous state vector in the node after the post
  * time step
  * @param u The compartment state vector in the node.
@@ -156,9 +181,10 @@ int SISe_sp_post_time_step(
     const int day = (int)t % 365;
     const double I_i = u[I];
     const double C_i = u[C];
-    const double N_i = u[S] + I_i + C_i; /* added in C_i here because it contributes to environmental infectious pressure. The other new compartments do not.*/
+    const double V_i = u[V];
+    const double N_i = u[S] + I_i + C_i + V_i; /* added in C_i and V_i here because they contribute to environmental infectious pressure. The other new compartments do not.*/
     const double phi = v[PHI];
-    const int Nc = 3;
+    const int Nc = 4;
 
     /* Deterimine the pointer to the continuous state vector in the
      * first node. Use this to find phi at neighbours to the current
@@ -180,8 +206,10 @@ int SISe_sp_post_time_step(
 
     /* Local spread among proximal nodes. */
         /* Have added in the part of the local equation that includes infection from carriers */
+        /* Have extended this to allow vaccinated animals to shed at a rate that may be different to carriers*/
+        /* DE - I think there was a missplaced bracket here meaning that carriers were being scaled by N but not infectious in the first term. Fixed now (assuming it was indeed an error)*/
     if (N_i > 0.0) {
-        v_new[PHI] += (gdata[ALPHA] * I_i) + (gdata[EPAR] * gdata[ALPHA] * C_i)/ N_i +
+        v_new[PHI] += (gdata[ALPHA] * I_i + gdata[EPAR] * gdata[ALPHA] * C_i + gdata[VACCSHED] * gdata[ALPHA] * V_i)/ N_i +
             SimInf_local_spread(&ldata[NEIGHBOR], phi_0, u_0,
                                 N_i, phi, Nc, gdata[COUPLING]);
     }
@@ -204,7 +232,7 @@ int SISe_sp_post_time_step(
 SEXP SISe_sp_run(SEXP model, SEXP threads, SEXP solver)
 {
     TRFun tr_fun[] = {&SISe_sp_S_to_I, &SISe_sp_I_to_S, &SISe_sp_I_to_C,
-                   &SISe_sp_C_to_S};
+                   &SISe_sp_C_to_S, &SISe_sp_V_to_S};
 
     return SimInf_run(model, threads, solver, tr_fun, &SISe_sp_post_time_step);
 }

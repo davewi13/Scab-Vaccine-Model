@@ -1,0 +1,7 @@
+In SISe_sp.c - In SISe_sp_post_time_step
+
+Bracket position was dividing the carriers by N but not the infected. Changed this so that everything was divided by N in the first term, which is consistent with the paper and makes sense to me.
+
+Between .R file and .c file - The order of entries in gdata was different which seemed to result in the wrong parameter values being accessed in places. Changed the order in the .c code to match what was in R and this fixed some odd behaviour.
+
+Possibly due to these issues I am not getting infection with the default parameter values from twonodesexample. I also don't understand what it says in the paper with regards to upsilon's fitted parameter value ("mean values per day of 2.24 (8.1^(–2) per year)"). Those numbers don't match up to me and don't fit with what is in the example. I need to use much larger values of epsilon than in twonodesexample.R to get infection.
