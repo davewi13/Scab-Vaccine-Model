@@ -109,7 +109,6 @@ SISe_sp <- function(u0,
                     tau      = NULL, #new - this is the recovery rate for Carriers
                     qprop    = NULL, #new - this is equivalent to q in my notes. This helps scale the proportion of infecteds that recover and then become carriers
                     wane     = NULL, #newDE - this gives the shedding rate of vaccinated animals
-                    vaccshed = NULL, #newDE - this gives the rate at which protected immunity is lost in vaccinated individuals
                     beta_t1  = NULL,
                     beta_t2  = NULL,
                     beta_t3  = NULL,
@@ -134,7 +133,7 @@ SISe_sp <- function(u0,
     check_infectious_pressure_arg(nrow(u0), phi)
 
     ## Check for non-numeric parameters
-    check_gdata_arg(upsilon, gamma, alpha, epar, tau, qprop, wane, vaccshed, beta_t1, beta_t2, beta_t3, beta_t4,
+    check_gdata_arg(upsilon, gamma, alpha, epar, tau, qprop, wane, beta_t1, beta_t2, beta_t3, beta_t4,
                     coupling) #added in new parameters
 
     ## Check interval endpoints
@@ -150,29 +149,31 @@ SISe_sp <- function(u0,
     ## Arguments seem ok...go on
     E <- matrix(c(1, 1, 1,
                   0, 1, 0, 
-                  0, 1, 1, 
+                  0, 1, 0, 
                   0, 1, 0), nrow = 4, ncol = 3, byrow=T,
                 dimnames = list(compartments, c("1", "2", "3"))) # DE added third event for vaccination
 
-    N <- matrix(c(3, 0, 1, 0), nrow = 4, ncol = 1, dimnames = list(c("S", "I", "C", "V"), c("1")))
+    N <- matrix(c(3, 0, 0, 0), nrow = 4, ncol = 1, dimnames = list(c("S", "I", "C", "V"), c("1")))
     
-    G <- matrix(c(1, 1, 1, 0, 0,
-                  1, 1, 1, 0, 0,
-                  1, 1, 1, 1, 0,
-                  1, 0, 0, 1, 0,
-                  1, 0, 0, 0, 1), nrow = 5, ncol = 5, byrow = T,
+    G <- matrix(c(1, 1, 1, 1, 1, 1,
+                  1, 1, 1, 1, 1, 1,
+                  1, 1, 1, 1, 0, 0,
+                  1, 1, 1, 1, 0, 0,
+                  1, 1, 0, 0, 1, 0,
+                  1, 1, 0, 0, 0, 1), nrow = 6, ncol = 6, byrow = T,
                dimnames = list(c("S -> upsilon*phi*S -> I",
+                                 "V -> upsilon*phi*V -> C",
                                   "I -> gamma*((1-qprop)*I) -> S",
                                   "I -> gamma*qprop*I -> C",
                                   "C -> tau*C -> S",
                                   "V -> wane*V -> S"),
-                                c("1", "2", "3", "4", "5"))) #adapted this for the new model - DE added waning immunity in vaccine compartment
+                                c("1", "2", "3", "4", "5", "6"))) #adapted this for the new model - DE added infestation of vaccinated individuals and waning immunity in vaccine compartment
     
-    S <- matrix(c(-1,  1,  0,  1,  1,
-                   1, -1, -1,  0,  0, 
-                   0,  0,  1, -1,  0,
-                   0,  0,  0,  0, -1), nrow = 4, ncol = 5, byrow=T,
-                dimnames = list(compartments, c("1", "2", "3", "4", "5")))  #adapted this for the new model. - DE added vaccination 
+    S <- matrix(c(-1,  0,  1,  0,  1,  1,
+                   1,  0, -1, -1,  0,  0, 
+                   0,  1,  0,  1, -1,  0,
+                   0, -1,  0,  0,  0, -1), nrow = 4, ncol = 6, byrow=T,
+                dimnames = list(compartments, c("1", "2", "3", "4", "5", "6")))  #adapted this for the new model. - DE added vaccination 
 
     v0 <- matrix(as.numeric(phi), nrow  = 1, byrow = TRUE,
                  dimnames = list("phi"))
@@ -182,9 +183,9 @@ SISe_sp <- function(u0,
                     dimnames = list(c("end_t1", "end_t2", "end_t3", "end_t4")))
     ldata <- .Call(SimInf_ldata_sp, ldata, distance, 1L)
 
-    gdata <- as.numeric(c(upsilon, gamma, alpha, epar, tau, qprop, wane, vaccshed,beta_t1, beta_t2,
+    gdata <- as.numeric(c(upsilon, gamma, alpha, epar, tau, qprop, wane, beta_t1, beta_t2,
                           beta_t3, beta_t4, coupling)) #added in new parameters here
-    names(gdata) <- c("upsilon", "gamma", "alpha", "epar", "tau", "qprop", "wane", "vaccshed","beta_t1", "beta_t2",
+    names(gdata) <- c("upsilon", "gamma", "alpha", "epar", "tau", "qprop", "wane","beta_t1", "beta_t2",
                       "beta_t3", "beta_t4", "coupling")
 
     model <- SimInf_model(G      = G,

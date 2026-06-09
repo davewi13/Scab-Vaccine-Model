@@ -11,6 +11,7 @@
 /src/Makevars
 /src-i386/
 src-x64/
+*.html
 
 # Build / configure artifacts
 /config.log
@@ -30,3 +31,7 @@ inst/doc
 /vignettes/*.out
 /vignettes/*.tex
 /vignettes/*.png
+
+# Whole folders and specific files
+Figures/
+Notebook.Rmd

@@ -38,9 +38,9 @@ enum {END_T1, END_T2, END_T3, END_T4, NEIGHBOR};
 
 /* Offsets in global data (gdata) to parameters in the model */
 /* I've added new parameters called epar, tau, qprop */
-/* DE and I've added vaccshed and wane*/
+/* DE I've added wane*/
 /* Also reordered these to reflect the order of gdata from R because that was causing problems accessing the wrong parameter values*/
-enum {UPSILON, GAMMA, ALPHA, EPAR, TAU, QPROP, WANE, VACCSHED,
+enum {UPSILON, GAMMA, ALPHA, EPAR, TAU, QPROP, WANE,
       BETA_T1, BETA_T2, BETA_T3, BETA_T4, COUPLING};
 
 /**
@@ -61,6 +61,26 @@ double SISe_sp_S_to_I(
     double t)
 {
     return gdata[UPSILON] * v[PHI] * u[S];
+}
+
+/**
+ * susceptible to infected: V -> C (DE NEW)
+ *
+ * @param u The compartment state vector in node.
+ * @param v The continuous state vector in node.
+ * @param ldata The local data vector for the node.
+ * @param gdata The global data vector.
+ * @param t Current time.
+ * @return propensity.
+ */
+double SISe_sp_V_to_C(
+    const int *u,
+    const double *v,
+    const double *ldata,
+    const double *gdata,
+    double t)
+{
+    return gdata[UPSILON] * v[PHI] * u[V];
 }
 
 /**
@@ -209,7 +229,7 @@ int SISe_sp_post_time_step(
         /* Have extended this to allow vaccinated animals to shed at a rate that may be different to carriers*/
         /* DE - I think there was a missplaced bracket here meaning that carriers were being scaled by N but not infectious in the first term. Fixed now (assuming it was indeed an error)*/
     if (N_i > 0.0) {
-        v_new[PHI] += (gdata[ALPHA] * I_i + gdata[EPAR] * gdata[ALPHA] * C_i + gdata[VACCSHED] * gdata[ALPHA] * V_i)/ N_i +
+        v_new[PHI] += (gdata[ALPHA] * I_i + gdata[EPAR] * gdata[ALPHA] * C_i)/ N_i +
             SimInf_local_spread(&ldata[NEIGHBOR], phi_0, u_0,
                                 N_i, phi, Nc, gdata[COUPLING]);
     }
@@ -231,7 +251,7 @@ int SISe_sp_post_time_step(
  */
 SEXP SISe_sp_run(SEXP model, SEXP threads, SEXP solver)
 {
-    TRFun tr_fun[] = {&SISe_sp_S_to_I, &SISe_sp_I_to_S, &SISe_sp_I_to_C,
+    TRFun tr_fun[] = {&SISe_sp_S_to_I, &SISe_sp_V_to_C, &SISe_sp_I_to_S, &SISe_sp_I_to_C,
                    &SISe_sp_C_to_S, &SISe_sp_V_to_S};
 
     return SimInf_run(model, threads, solver, tr_fun, &SISe_sp_post_time_step);

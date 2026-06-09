@@ -1,0 +1,3 @@
+To install go to terminal in R, navigate to ~/ScabModel/SimInf and type 
+
+R CMD INSTALL -l C:/Users/de43382/AppData/Local/R/win-library/4.4 .
