@@ -1,19 +1,3 @@
-#' Plot compartment trajectories with median and prediction interval ribbon
-#'
-#' @param data        Wide data frame with columns node, time, sim and compartment
-#'                    columns (S, I, C, V), or an already-pivoted long data frame
-#'                    with columns node, time, sim, compartment, count
-#' @param compartments Character vector of compartment names to plot
-#'                    (default: c("C", "I"))
-#' @param alpha_lines  Transparency of individual simulation lines (default: 0.1)
-#' @param linewidth_individual Line width for individual simulation lines (default: 0.3)
-#' @param linewidth_median     Line width for median trajectory line (default: 1)
-#' @param alpha_ribbon Transparency of the prediction interval ribbon (default: 0.3)
-#' @param pi_lower     Lower quantile for prediction interval (default: 0.025)
-#' @param pi_upper     Upper quantile for prediction interval (default: 0.975)
-#' @return             A ggplot object facetted by node, with individual simulation
-#'                     lines, a shaded 95% prediction ribbon, and a median trajectory
-#'                     line, coloured by compartment
 plot_scenario <- function(data,
                           compartments = c("C", "I"),
                           alpha_lines  = 0.1,
@@ -23,7 +7,11 @@ plot_scenario <- function(data,
                           pi_lower     = 0.025,
                           pi_upper     = 0.975) {
   
-  # Pivot to long if needed (accepts either wide or already-long data)
+  library(dplyr)
+  library(tidyr)
+  library(ggplot2)
+  
+  # Pivot to long if needed
   if (any(c("S", "I", "C", "V") %in% names(data))) {
     data <- pivot_longer(data,
                          cols      = any_of(c("S", "I", "C", "V")),
@@ -32,11 +20,21 @@ plot_scenario <- function(data,
   }
   
   # Filter to requested compartments
-  data_filt <- data %>% filter(compartment %in% compartments)
+  data_filt <- data %>%
+    filter(compartment %in% compartments)
   
-  # Summary statistics
+  # ✅ Create readable labels (requires 'status' column in data)
+  if ("status" %in% names(data_filt)) {
+    data_filt <- data_filt %>%
+      mutate(node_label = paste0("Farm ", node, " (", status, ")"))
+  } else {
+    data_filt <- data_filt %>%
+      mutate(node_label = paste0("Farm ", node))
+  }
+  
+  # ✅ Summary WITH node_label included (this was the key fix)
   q_summary <- data_filt %>%
-    group_by(node, time, compartment) %>%
+    group_by(node, node_label, time, compartment) %>%
     summarise(
       median = median(count),
       lower  = quantile(count, pi_lower),
@@ -44,11 +42,12 @@ plot_scenario <- function(data,
       .groups = "drop"
     )
   
+  # ✅ Plot
   ggplot() +
     geom_line(
       data = data_filt,
       aes(x = time, y = count, colour = compartment,
-          group = interaction(sim, compartment)),
+          group = interaction(sim, compartment, node)),
       alpha     = alpha_lines,
       linewidth = linewidth_individual
     ) +
@@ -62,7 +61,7 @@ plot_scenario <- function(data,
       aes(x = time, y = median, colour = compartment),
       linewidth = linewidth_median
     ) +
-    facet_wrap(~ node) +
+    facet_wrap(~ node_label) +
     labs(
       x      = "Time (days)",
       y      = "Count",

@@ -14,12 +14,17 @@ run_scenario <- function(params      = list(),
                          seed        = 123,
                          cutoff      = 1999,
                          u0          = NULL,
-                         vaccination = NULL) {
+                         vaccination = NULL,
+                         nodes       = NULL) {
   
-  p <- modifyList(base_params, params)   # overlay user params on defaults
+  p <- params   # overlay user params on defaults
   
-  nodes <- setup_nodes()
-  d_ik  <- distance_matrix(x = nodes$x, y = nodes$y, cutoff = cutoff)
+  
+  d_ik <- distance_matrix(
+    x = nodes[,1],
+    y = nodes[,2],
+    cutoff = cutoff
+  )
   
   model <- SISe_sp(
     u0      = u0,
