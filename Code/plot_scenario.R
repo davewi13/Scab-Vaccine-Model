@@ -5,7 +5,8 @@ plot_scenario <- function(data,
                           linewidth_median     = 1,
                           alpha_ribbon = 0.3,
                           pi_lower     = 0.025,
-                          pi_upper     = 0.975) {
+                          pi_upper     = 0.975,
+                          caption      = "") {
   
   library(dplyr)
   library(tidyr)
@@ -23,7 +24,6 @@ plot_scenario <- function(data,
   data_filt <- data %>%
     filter(compartment %in% compartments)
   
-  # ✅ Create readable labels (requires 'status' column in data)
   if ("status" %in% names(data_filt)) {
     data_filt <- data_filt %>%
       mutate(node_label = paste0("Farm ", node, " (", status, ")"))
@@ -32,7 +32,6 @@ plot_scenario <- function(data,
       mutate(node_label = paste0("Farm ", node))
   }
   
-  # ✅ Summary WITH node_label included (this was the key fix)
   q_summary <- data_filt %>%
     group_by(node, node_label, time, compartment) %>%
     summarise(
@@ -42,7 +41,6 @@ plot_scenario <- function(data,
       .groups = "drop"
     )
   
-  # ✅ Plot
   ggplot() +
     geom_line(
       data = data_filt,
@@ -66,9 +64,10 @@ plot_scenario <- function(data,
       x      = "Time (days)",
       y      = "Count",
       colour = "Compartment",
-      fill   = "Compartment"
+      fill   = "Compartment",
+      caption = stringr::str_wrap(caption,width=100)
     ) +
-    theme_bw() +
+    theme_minimal(base_size=18) +
     theme(
       legend.position  = "bottom",
       strip.background = element_rect(fill = "grey90")
