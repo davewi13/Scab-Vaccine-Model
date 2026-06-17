@@ -1,0 +1,10 @@
+name: shinyscab
+title:
+username: david-ewing
+account: david-ewing
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 17521282
+bundleId: 12140455
+url: https://david-ewing.shinyapps.io/shinyscab/
+version: 1

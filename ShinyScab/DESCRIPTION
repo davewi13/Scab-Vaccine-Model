@@ -1,0 +1,17 @@
+Package: shinyscab
+Type: Application
+
+Imports:
+  shiny,
+  ggplot2,
+  dplyr,
+  tidyr,
+  data.table,
+  shinyWidgets,
+  shinyjs
+
+Remotes:
+  davewi13/Scab-Vaccine-Model/SimInf
+
+SystemRequirements:
+  Config/Needs/compile: no
