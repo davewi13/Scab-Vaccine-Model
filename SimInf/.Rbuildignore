@@ -18,3 +18,8 @@ src/gsl
 ^vignettes/img/[^.]+\.tex$
 ^vignettes/img/SIR.pdf$
 ^vignettes/img/SISe3_sp.pdf$
+^configure$
+^configure\.ac$
+^configure\.win$
+^cleanup$
+^cleanup\.win$
