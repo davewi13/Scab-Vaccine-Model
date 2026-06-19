@@ -1,20 +1,4 @@
-load_siminf <- function() {
-  
-  if (dir.exists("SimInf")) {
-    message("Loading SimInf from local deploy folder")
-    devtools::load_all("SimInf")
-    
-  } else if (dir.exists("../SimInf")) {
-    message("Loading SimInf from project folder")
-    devtools::load_all("../SimInf")
-    
-  } else {
-    stop("SimInf folder not found")
-  }
-}
-
-load_siminf()
-
+library(SimInf)
 library(shiny)
 library(shinyjs)
 library(data.table)
