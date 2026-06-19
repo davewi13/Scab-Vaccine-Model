@@ -23,8 +23,8 @@
 
 #include <Rdefines.h>
 
-#include "SimInf_arg.h"
-#include "SimInf_openmp.h"
+#include "misc/SimInf_arg.h"
+#include "misc/SimInf_openmp.h"
 #include "solvers/SimInf_solver.h"
 #include "solvers/ssm/SimInf_solver_ssm.h"
 #include "solvers/aem/SimInf_solver_aem.h"
