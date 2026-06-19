@@ -28,9 +28,9 @@
 #include <gsl/gsl_randist.h>
 
 #include "SimInf.h"
-#include "SimInf_openmp.h"
-#include "SimInf_solver_aem.h"
-#include "binheap.h"
+#include "misc/SimInf_openmp.h"
+#include "solvers/aem/SimInf_solver_aem.h"
+#include "misc/binheap.h"
 
 /**
  * Structure to hold AEM solver specific data/arguments for simulation.

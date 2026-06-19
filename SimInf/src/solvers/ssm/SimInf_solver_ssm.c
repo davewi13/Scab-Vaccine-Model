@@ -27,8 +27,8 @@
 #include <gsl/gsl_randist.h>
 
 #include "SimInf.h"
-#include "SimInf_openmp.h"
-#include "SimInf_solver_ssm.h"
+#include "misc/SimInf_openmp.h"
+#include "solvers/ssm/SimInf_solver_ssm.h"
 
 /**
  * Siminf solver
